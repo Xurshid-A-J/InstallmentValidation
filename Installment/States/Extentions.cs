@@ -8,6 +8,7 @@ namespace Installment.States
 	{ 
 		//private static List<Citizen> citizens = new();
         public static ReaderWriterLockSlim rwLockSlim = new();
+		static object locker = new();
 		private static readonly string path = "../../../DataBase";
 
         private static bool isValidCitizen(string passportID)
@@ -30,15 +31,12 @@ namespace Installment.States
 
 		private static List<Citizen> GetAllCitizens()
 		{
-			rwLockSlim.EnterReadLock();
-			try
+
+			//rwLockSlim.EnterReadLock();
+			lock (locker)
 			{
 				string citizenJSON = File.ReadAllText(path + "/CitizenData.json");
 				return JsonConvert.DeserializeObject<List<Citizen>>(citizenJSON);
-			}
-			finally
-			{
-				rwLockSlim.ExitReadLock();
 			}
 		}
 
